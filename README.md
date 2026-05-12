@@ -63,7 +63,7 @@ Repository/
 
 ---
 
-# Project 1 — Bare-Metal Embedded & Linker Scripts
+# Project 1 — Bare-Metal Embedded 
 
 A low-level Cortex-M4 bare-metal project demonstrating:
 
