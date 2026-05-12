@@ -1,164 +1,101 @@
-# Programming-on-CortexM4-via-STM32F303k8-MCU
-# STM32F303K8 Cooperative Task Scheduler (Cortex-M4)
+# ARM Cortex-M4 Bare-Metal & Scheduler Projects
 
-A simple cooperative task scheduler implementation for the STM32F303K8 Cortex-M4 MCU.
+This repository contains two embedded systems projects developed for the **STM32F303K8 (ARM Cortex-M4)** using low-level **bare-metal programming techniques**.
 
-This project demonstrates:
-
-- Manual task stack creation
-- PSP/MSP switching
-- PendSV-based context switching
-- SysTick scheduling
-- Semihosting `printf`
-- Custom startup code
-- Custom linker script
-- Bare-metal ARM Cortex-M4 development without HAL/CMSIS RTOS
+The projects focus on understanding how embedded systems and RTOS kernels work internally without using **HAL libraries** or an external **RTOS**.
 
 ---
 
-# MCU
+# Topics Covered
 
-- STM32F303K8
-- Cortex-M4
-- 64KB Flash
-- 12KB SRAM
-
----
-
-# Toolchain
-
-Required tools:
-
-- `arm-none-eabi-gcc`
-- `make`
-- `openocd`
-- `PuTTY` (or telnet client)
-- `Git Bash` / Linux shell
+- **ARM Cortex-M4 architecture**
+- Bare-metal embedded programming
+- GNU ARM Toolchain
+- Startup code and vector tables
+- Linker scripts and memory layout
+- SysTick and PendSV exceptions
+- MSP/PSP stack management
+- Context switching
+- Cooperative/preemptive scheduling
+- Task blocking and delays
+- Exception and fault handling
+- Semihosting with `printf()`
+- OpenOCD debugging and flashing
 
 ---
 
-# Build Instructions
-
-## Clean build files
-
-```bash
-make clean
-```
-
----
-
-## Build semihosting version
-
-```bash
-make semi
-```
-
-This generates:
+# Repository Structure
 
 ```text
-final_sh.elf
-```
-
----
-
-# Flashing & Running
-
-## Start OpenOCD
-
-```bash
-make load
-```
-
-Expected output:
-
-```text
-Info : Listening on port 4444 for telnet connections
-Info : Listening on port 3333 for gdb connections
-```
-
-Keep this terminal OPEN.
-
----
-
-# Connect using PuTTY
-
-Open PuTTY:
-
-- Connection type: `Telnet`
-- Host: `localhost`
-- Port: `4444`
-
----
-
-# OpenOCD Commands
-
-Inside the PuTTY/OpenOCD console execute:
-
-```tcl
-reset halt
-stm32f3x.cpu configure -work-area-phys 0 -work-area-size 0
-flash write_image erase final_sh.elf
-arm semihosting enable
-resume
-```
-
----
-
-# IMPORTANT NOTE ABOUT WORK AREA
-
-This project uses:
-
-- custom PSP task stacks
-- custom scheduler stack
-- semihosting
-- a small SRAM MCU (12KB)
-
-Because of this, OpenOCD RAM work-area allocation conflicts with the scheduler memory layout.
-
-Therefore this command is REQUIRED:
-
-```tcl
-stm32f3x.cpu configure -work-area-phys 0 -work-area-size 0
-```
-
-This disables OpenOCD RAM work-area usage and prevents SRAM collisions.
-
-Without this command the MCU may:
-
-- HardFault
-- DoubleFault
-- Lockup
-- Fail during flashing
-
----
-
-# Expected Output
-
-After `resume`:
-
-```text
-Implementation of simple task scheduler
-Task1 running
-Task2 running
-Task3 running
-Task4 running
-```
-
----
-
-# Project Structure
-
-```text
-.
-├── main.c
-├── main.h
-├── led.c
-├── led.h
-├── stm32_startup.c
-├── stm32_ls.ld
-├── Makefile
+Repository/
+│
+├── baremetal_embedded/
+│   ├── main.c
+│   ├── stm32_startup.c
+│   ├── stm32_ls.ld
+│   ├── Makefile
+│   └── ...
+│
+├── scheduler_project/
+│   ├── Inc/
+│   │   ├── main.h
+│   │   └── ...
+│   │
+│   ├── Src/
+│   │   ├── main.c
+│   │   ├── syscalls.c
+│   │   ├── sysmem.c
+│   │   └── ...
+│   │
+│   └── STM32CubeIDE project files
+│
 └── README.md
 ```
+
+---
+
+# MCU Information
+
+- **MCU:** STM32F303K8
+- **Core:** ARM Cortex-M4
+- **Flash:** 64KB
+- **SRAM:** 12KB
+
+---
+
+# Project 1 — Bare-Metal Embedded & Linker Scripts
+
+A low-level Cortex-M4 bare-metal project demonstrating:
+
+- custom startup code
+- interrupt vector table creation
+- linker script usage
+- SRAM/Flash memory mapping
+- manual stack initialization
+- OpenOCD flashing/debugging
+- semihosting support
+
+This project explains what happens internally before `main()` executes on an ARM Cortex-M microcontroller.
+
+---
+
+# Project 2 — Cortex-M4 Task Scheduler
+
+A lightweight embedded task scheduler implemented entirely from scratch without an RTOS.
+
+### Features Implemented
+
+- task scheduling
+- task delays
+- SysTick time base
+- PendSV context switching
+- PSP/MSP switching
+- task stack initialization
+- blocked/ready task states
+- fault exception handling
+- semihosting debugging with `printf()`
+
+The scheduler manually manages task stacks inside SRAM and demonstrates the internal mechanisms commonly used by RTOS kernels.
 
 ---
 
@@ -166,29 +103,29 @@ Task4 running
 
 The scheduler uses:
 
-- SysTick for time base
-- PendSV for context switching
-- PSP for task execution
-- MSP for exception handling
+- **SysTick** → periodic timing interrupt
+- **PendSV** → context switching
+- **PSP** → task execution stacks
+- **MSP** → exception handling stack
 
-Tasks are stored inside:
+Each task is represented using a **Task Control Block (TCB)**:
 
 ```c
-TCB_t user_tasks[MAX_TASKS];
+typedef struct
+{
+    uint32_t psp_value;
+    uint32_t block_count;
+    uint8_t current_state;
+    void (*task_handler)(void);
+
+}TCB_t;
 ```
-
-Each task contains:
-
-- PSP value
-- block delay counter
-- state
-- handler function
 
 ---
 
 # Memory Layout
 
-The project manually manages SRAM:
+The scheduler manually allocates stack regions inside SRAM:
 
 ```text
 +----------------------+
@@ -208,36 +145,83 @@ The project manually manages SRAM:
 
 ---
 
-# Semihosting Notes
+# Toolchain
 
-This project uses:
+Required tools:
 
-```c
-printf()
+- `arm-none-eabi-gcc`
+- `make`
+- `OpenOCD`
+- `STM32CubeIDE`
+- `PuTTY` / Telnet client
+
+---
+
+# Build Instructions
+
+## Clean Build
+
+```bash
+make clean
 ```
 
-through ARM semihosting (`rdimon.specs`).
+## Build Semihosting Version
 
-Semihosting is useful for debugging but:
+```bash
+make semi
+```
 
-- slow
-- debugger dependent
-- stack intensive
-- not ideal for production RTOS systems
+Generated output:
 
-Production-grade systems should use:
-
-- UART logging
-or
-- SWO/ITM tracing
-
-instead.
+```text
+final_sh.elf
+```
 
 ---
 
+# Flashing & Debugging
+
+Start OpenOCD:
+
+```bash
+make load
+```
+
+Then connect through **PuTTY/Telnet** and execute:
+
+```tcl
+reset halt
+stm32f3x.cpu configure -work-area-phys 0 -work-area-size 0
+flash write_image erase final_sh.elf
+arm semihosting enable
+resume
+```
 
 ---
 
-# Author
+# Important Note
 
-Bare-metal Cortex-M4 scheduler implementation for educational and embedded systems learning purposes.
+Because the scheduler manually manages SRAM for PSP/MSP task stacks, OpenOCD work-area allocation may conflict with the memory layout.
+
+This command disables OpenOCD SRAM work-area usage:
+
+```tcl
+stm32f3x.cpu configure -work-area-phys 0 -work-area-size 0
+```
+
+Without it the MCU may trigger:
+
+- HardFault
+- BusFault
+- Lockup states
+
+---
+
+# Example Output
+
+```text
+Task1 running
+Task2 running
+Task3 running
+Task4 running
+```
