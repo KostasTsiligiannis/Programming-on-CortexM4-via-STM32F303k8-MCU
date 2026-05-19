@@ -1,8 +1,8 @@
-# ARM Cortex-M4 Bare-Metal & Scheduler Projects
+# ARM Cortex-M4 Bare-Metal & Scheduler Project
 
-This repository contains two embedded systems projects developed for the **STM32F303K8 (ARM Cortex-M4)** using low-level **bare-metal programming techniques**.
+This project demonstrates low-level bare-metal programming on the STM32F303K8 microcontroller (ARM Cortex-M4) without using HAL libraries, CMSIS startup files, or any external RTOS.
 
-The projects focus on understanding how embedded systems and RTOS kernels work internally without using **HAL libraries** or an external **RTOS**.
+The goal of this project is to provide a clear understanding of what happens internally from reset until `main()` is executed, including memory initialization, vector table setup, linker configuration, stack initialization, semihosting, and fault handling.
 
 ---
 
@@ -24,36 +24,6 @@ The projects focus on understanding how embedded systems and RTOS kernels work i
 
 ---
 
-# Repository Structure
-
-```text
-Repository/
-│
-├── baremetal_embedded/
-│   ├── main.c
-│   ├── stm32_startup.c
-│   ├── stm32_ls.ld
-│   ├── Makefile
-│   └── ...
-│
-├── scheduler_project/
-│   ├── Inc/
-│   │   ├── main.h
-│   │   └── ...
-│   │
-│   ├── Src/
-│   │   ├── main.c
-│   │   ├── syscalls.c
-│   │   ├── sysmem.c
-│   │   └── ...
-│   │
-│   └── STM32CubeIDE project files
-│
-└── README.md
-```
-
----
-
 # MCU Information
 
 - **MCU:** STM32F303K8
@@ -63,7 +33,7 @@ Repository/
 
 ---
 
-# Project 1 — Bare-Metal Embedded 
+# Bare-Metal Embedded 
 
 A low-level Cortex-M4 bare-metal project demonstrating:
 
@@ -79,7 +49,7 @@ This project explains what happens internally before `main()` executes on an ARM
 
 ---
 
-# Project 2 — Cortex-M4 Task Scheduler
+# Cortex-M4 Task Scheduler
 
 A lightweight embedded task scheduler implemented entirely from scratch without an RTOS.
 
@@ -152,7 +122,6 @@ Required tools:
 - `arm-none-eabi-gcc`
 - `make`
 - `OpenOCD`
-- `STM32CubeIDE`
 - `PuTTY` / Telnet client
 
 ---
