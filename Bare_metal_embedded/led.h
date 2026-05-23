@@ -8,7 +8,7 @@
 #ifndef LED_H_
 #define LED_H_
 
-#define LED_GREEN  9
+#define LED_GREEN  3
 
 #define DELAY_COUNT_1MS 		 1250U
 #define DELAY_COUNT_1S  		(1000U * DELAY_COUNT_1MS)
