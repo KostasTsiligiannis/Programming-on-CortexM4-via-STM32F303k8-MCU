@@ -1,7 +1,4 @@
-/*
- * stm32_startup.c
- * Startup file for STM32F303K8 (STM32F303x8)
- */
+
 
 #include <stdint.h>
 
