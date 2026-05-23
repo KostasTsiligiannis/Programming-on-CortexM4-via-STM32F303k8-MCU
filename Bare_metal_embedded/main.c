@@ -57,8 +57,6 @@ int main(void)
 
 	init_scheduler_stack(SCHED_STACK_START);
 
-	printf("Implementation of simple task scheduler\n");
-	
 	init_tasks_stack();
 
 	led_init_all();
@@ -81,39 +79,65 @@ void idle_task(void)
 
 void task1_handler(void)
 {
-    while(1)
-    {
-        printf("Task1 running\n");
-        task_delay(1000);
+    /* Task 1: Steady and Slow (The "Beacon") */
+    /* Keeps the LED ON for 3 seconds, then OFF for 3 seconds */
+    while(1) {
+        printf("--- Task 1: LED ON (Long) ---\n");
+        led_on(LED_GREEN);
+        task_delay(3000);
+
+        led_off(LED_GREEN);
+        printf("--- Task 1: LED OFF (Long) ---\n");
+        task_delay(3000);
     }
 }
 
 void task2_handler(void)
 {
-    while(1)
-    {
-        printf("Task2 running\n");
-        task_delay(500);
+    /* Task 2: The "Nervous" Task (Fast Burst) */
+    /* Blinks 5 times rapidly every 6 seconds to show interruption */
+    while(1) {
+        task_delay(6000); // Wait 6 seconds to let other tasks run
+        printf(">>> Task 2: Rapid Blinking <<<\n");
+
+        for(int i=0; i<5; i++) {
+            led_on(LED_GREEN);
+            task_delay(100);
+            led_off(LED_GREEN);
+            task_delay(100);
+        }
     }
 }
 
 void task3_handler(void)
 {
-    while(1)
-    {
-        printf("Task3 running\n");
-        task_delay(250);
+    /* Task 3: The "Signal" Task (Double Pulse) */
+    /* Executes two medium pulses every 10 seconds */
+    while(1) {
+        task_delay(10000); // Long wait period
+        printf("*** Task 3: Signal Pulse ***\n");
+
+        led_on(LED_GREEN);
+        task_delay(800);
+        led_off(LED_GREEN);
+        task_delay(400);
+        led_on(LED_GREEN);
+        task_delay(800);
+        led_off(LED_GREEN);
     }
 }
 
 void task4_handler(void)
 {
-    while(1)
-    {
-        printf("Task4 running\n");
-        task_delay(125);
+    /* Task 4: The "Observer" (Print Only) */
+    /* Does not touch the LED; used to verify background scheduling */
+    while(1) {
+        printf("Status: Task 4 is monitoring...\n");
+        task_delay(1500);
     }
 }
+
+
 
 
 void init_systick_timer(uint32_t tick_hz)
