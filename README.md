@@ -168,9 +168,9 @@ resume
 
 ---
 
-# Important Note
+# Important Notes
 
-Because the scheduler manually manages SRAM for PSP/MSP task stacks, OpenOCD work-area allocation may conflict with the memory layout.
+1) Because the scheduler manually manages SRAM for PSP/MSP task stacks, OpenOCD work-area allocation may conflict with the memory layout.
 
 This command disables OpenOCD SRAM work-area usage:
 
@@ -186,14 +186,21 @@ Without it the MCU may trigger:
 
 ---
 
-# Example Output
+2) "While this project utilizes ARM Semihosting for printf() output, it is important to note that semihosting is inherently slow as it relies on the debugger (OpenOCD/ST-Link) to halt the CPU to transfer data. In a real-time scheduler, this can cause significant 'jitter' or missed Systick beats if overused. We intentionally utilized this method for diagnostic and debugging purposes only, as it provides an easy-to-use console without the overhead of configuring a full UART peripheral driver, allowing us to focus on the core scheduler logic."
 
-```text
-Task1 running
-Task2 running
-Task3 running
-Task4 running
-Task4 running
+---
+
+# Visual Task Demonstration
+
+To visually verify the preemptive nature of the scheduler on the NUCLEO-F303K8 (which features a single User LED on **PB3**), we implemented a "Resource Contention" demo. Since all tasks share the same physical LED, their overlapping execution creates distinct visual patterns:
+
+- **Task 1 (The Beacon):** Tries to keep the LED ON for 3s and OFF for 3s.
+- **Task 2 (The Burst):** Interrupts every 6s with 5 rapid flashes (100ms).
+- **Task 3 (The Signal):** Triggers a double-pulse pattern every 10s.
+- **Task 4 (The Observer):** Runs in the background providing console telemetry.
+
+This setup demonstrates **Task Preemption** in real-time: you can observe Task 2 or Task 3 "stealing" the LED control from Task 1 while Task 1 is still in its `task_delay` period.
+
 Task3 running
 Task4 running
 
