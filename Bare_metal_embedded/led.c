@@ -6,25 +6,26 @@ void led_init_all(void)
     // RCC AHBENR
     uint32_t *pRccAhbEnr = (uint32_t*)0x40021014;
 
-    // GPIOA MODER
-    uint32_t *pGpioAMode = (uint32_t*)0x48000000;
+    // GPIOB MODER - Διορθώθηκε η διεύθυνση εδώ (0x48000400 αντί για 0x48000000)
+    uint32_t *pGpioBMode = (uint32_t*)0x48000400;
 
-    // enable clock for GPIOA
-    *pRccAhbEnr |= (1 << 17);
+    // enable clock for GPIOB
+    *pRccAhbEnr |= (1 << 18);
 
-    // PA9 output mode
-    *pGpioAMode &= ~(3 << (2 * 9));
-    *pGpioAMode |=  (1 << (2 * 9));
+    // PB3 output mode (καθαρισμός των bit 6,7 και set του bit 6)
+    *pGpioBMode &= ~(3 << (2 * 3));
+    *pGpioBMode |=  (1 << (2 * 3));
 }
 
 void led_on(uint8_t led_no)
 {
-    uint32_t *pOdr = (uint32_t*)0x48000014;
+    // GPIOB ODR - Αυτό ήταν ήδη σωστό (0x48000400 + 0x14 = 0x48000414)
+    uint32_t *pOdr = (uint32_t*)0x48000414;
     *pOdr |= (1 << led_no);
 }
 
 void led_off(uint8_t led_no)
 {
-    uint32_t *pOdr = (uint32_t*)0x48000014;
+    uint32_t *pOdr = (uint32_t*)0x48000414;
     *pOdr &= ~(1 << led_no);
 }
