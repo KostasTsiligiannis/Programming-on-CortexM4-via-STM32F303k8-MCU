@@ -184,7 +184,6 @@ Without it the MCU may trigger:
 - BusFault
 - Lockup states
 
----
 
 2) "While this project utilizes ARM Semihosting for printf() output, it is important to note that semihosting is inherently slow as it relies on the debugger (OpenOCD/ST-Link) to halt the CPU to transfer data. In a real-time scheduler, this can cause significant 'jitter' or missed Systick beats if overused. We intentionally utilized this method for diagnostic and debugging purposes only, as it provides an easy-to-use console without the overhead of configuring a full UART peripheral driver, allowing us to focus on the core scheduler logic."
 
