@@ -201,6 +201,3 @@ To visually verify the preemptive nature of the scheduler on the NUCLEO-F303K8 (
 
 This setup demonstrates **Task Preemption** in real-time: you can observe Task 2 or Task 3 "stealing" the LED control from Task 1 while Task 1 is still in its `task_delay` period.
 
-
-
-```
